@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 
 #define NUMBER_OF_PROCESSES 5
@@ -30,12 +31,65 @@ int claim[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES]; // the claim of each proces
 int allocation[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES]; //allocation per process
 int need[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES]; //C – A
 
+void parser()
+{
+    FILE* fp1;
+    fp1 = fopen("inp1.txt", "r");
+    char str[200];
+    char* rch;
+    int temp;
+    int temp_col;
+    int line = 0;
+    while (fgets(str, sizeof(str), fp1) != NULL)    // gets each line in fp1
+    {
+        // keeps track of which col to store value in
+        temp_col = 0;
+        rch = strtok(str, " ");                         // rch is element after spliting by " "
+        while (rch != NULL){
+            temp = atoi(rch);                           // temp value is rch converted to int
+            if(line >= 0 && line <= 4){                 // if line is within 1-5 line store in claim matrix
+                claim[line][temp_col] = temp;
+                //printf("%d ", claim[line][temp_col]);
+            }
+            else if(line >= 6 && line <= 10){   
+                allocation[line-6][temp_col] = temp;    // if line is within 7-11 line store in allocation matrix
+                //printf("%d ", allocation[line-6][temp_col]);
+            }
+            else if(line == 12){
+                available[temp_col] = temp;             // if line is 12 store in claim matrix
+                //printf("%d ", available[temp_col]);
+            }
+            temp_col++;                                 // update col tracker
+            rch = strtok(NULL, " ");                    // update rch pointer to go to next element
+        }
+        //printf("\n");
+        line++;
+    }
+
+}
 void needs_matrix()
 {
     // Matrix Operations to Evaluate C-A
+    //printf("C - A Matrix: \n");
+    for(int i = 0; i < NUMBER_OF_PROCESSES; i++){
+        for(int j = 0; j < NUMBER_OF_RESOURCES; j++){
+            need[i][j] = claim[i][j] - allocation[i][j];
+            //printf("%d ", need[i][j]);
+        }
+        //printf("\n");
+    }
+}
+
+void safe_sequence(){
+    // Determine if initial state is a safe state. Use an algorithm to compare Available vector and Needs vector
 }
 
 int main ()
 {
+    // Possibly loop through and print each row for matrix
+    printf("Claim           Allocation          C - A\n");
+    printf("A B C D         A B C D             A B C D\n");
+    parser();
+    needs_matrix();
     return 0;
 }
