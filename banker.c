@@ -34,7 +34,7 @@ int need[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES]; //C – A
 void parser()
 {
     FILE* fp1;
-    fp1 = fopen("inp1.txt", "r");
+    fp1 = fopen("inp3.txt", "r");
     char str[200];
     char* rch;
     int temp;
@@ -80,16 +80,110 @@ void needs_matrix()
     }
 }
 
-void safe_sequence(){
-    // Determine if initial state is a safe state. Use an algorithm to compare Available vector and Needs vector
+void print_matrixes()
+{
+    for(int i = 0; i < NUMBER_OF_PROCESSES; i++){
+        for(int j = 0; j < NUMBER_OF_RESOURCES+8; j++){
+            if(j==0){
+                printf("P%d ", i);
+                printf("%d ", claim[i][j]);
+            }
+            else if (j<4){
+                printf("%d ", claim[i][j]);
+            }
+            else if (j==4){
+                printf("     P%d ", i);
+                printf("%d ", allocation[i][j-4]);
+            }
+            else if (j>4&&j<8){
+                printf("%d ", allocation[i][j-4]);
+            }
+            else if (j==8){
+                printf("         P%d ", i);
+                printf("%d ", need[i][j-8]);
+            }
+            else{
+                printf("%d ", need[i][j-8]);
+            }
+        }
+        printf("\n");
+    }
+    printf("\nAvailable\n");
+    printf("A B C D\n");
+    printf("%d %d %d %d\n", available[0], available[1], available[2], available[3]);
 }
+void safe_sequence()
+{
+    // Determine if initial state is a safe state. Use an algorithm to compare Available vector and Needs vector
+    int processes_ran = 0;
+    int flags[5] = {0,0,0,0,0};
+    int safe_seq[5] = {0,0,0,0,0};
+    int safe_ind = 0;
+    int restart = 0;
+    printf("\n");
+    while(processes_ran != 5){
+    printf("Available ");
+    printf("%d %d %d %d\n", available[0], available[1], available[2], available[3]);
+        for(int i = 0; i < NUMBER_OF_PROCESSES; i++){
+            for(int j = 0; j < NUMBER_OF_RESOURCES; j++){
+                if(flags[i] == 1){      // check if process has ran before
+                    break;
+                }
+                if(available[j] >= need[i][j]){
+                    if(j==3){
+                        flags[i] = 1;   // mark off the process as it has ran
+                        safe_seq[safe_ind] = i; // add to safe sequence
+                        safe_ind = safe_ind + 1; // update safe_ind
+                        processes_ran = processes_ran + 1; // add to processes ran
+                        // loop through to print process ran and add to available
+                        printf("P%d runs ", i);
+                        for(int k = 0; k < NUMBER_OF_RESOURCES; k++){
+                            printf("%d ", allocation[i][k]);
+                            available[k] = available[k] + allocation[i][k];
+                        }
+                        printf("\n");
+                        restart = 1;
+                        break;          // restart process check
+                    }
+                }
+                else{
+                    if(j==3&&i==4){     // check if a process cannot run
+                        printf("The initial state is not a safe state, the processes that cannot run are: ");
+                        for(int k = 0; k<5; k++){
+                            if(flags[k]==0){
+                                printf("P%d ", k);
+                            }
+                        }
+                        printf("\n");
+                        return;
+                    }
+                    break; // process cannot run
+                }
+            }
+            if(restart == 1){
+                restart = 0;
+                break;
+            }
+        }
+    }
+    printf("Available ");
+    printf("%d %d %d %d\n", available[0], available[1], available[2], available[3]);
+    printf("\n");
+    printf("Yes, the initial state is a safe state. Safe sequence: ");
+    for(int i = 0; i < 5; i++){
+        printf("P%d ", safe_seq[i]);
+    }
+    printf("\n");
+}   
 
 int main ()
 {
     // Possibly loop through and print each row for matrix
     printf("Claim           Allocation          C - A\n");
-    printf("A B C D         A B C D             A B C D\n");
+    printf("   A B C D         A B C D             A B C D\n");
     parser();
     needs_matrix();
+    print_matrixes();
+    safe_sequence();
     return 0;
 }
