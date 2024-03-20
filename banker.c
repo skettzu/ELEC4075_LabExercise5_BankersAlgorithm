@@ -26,6 +26,9 @@ output the list of processes that cannot run. Sample output is shown on the next
 match. Include screenshots for each input text file.
 */
 
+/*
+CHANGE THE VARIABLE 'fp1' TO THE TEXT FILE YOU WANT TO RUN THE BANKER'S ALGORITHM ON
+*/
 int available[NUMBER_OF_RESOURCES]; // the available amount of each resource
 int claim[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES]; // the claim of each process
 int allocation[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES]; //allocation per process
@@ -34,7 +37,7 @@ int need[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES]; //C – A
 void parser()
 {
     FILE* fp1;
-    fp1 = fopen("inp3.txt", "r");
+    fp1 = fopen("inp2.txt", "r");
     char str[200];
     char* rch;
     int temp;
@@ -82,6 +85,7 @@ void needs_matrix()
 
 void print_matrixes()
 {
+    // prints all three matrixes with correct format
     for(int i = 0; i < NUMBER_OF_PROCESSES; i++){
         for(int j = 0; j < NUMBER_OF_RESOURCES+8; j++){
             if(j==0){
@@ -147,7 +151,7 @@ void safe_sequence()
                     }
                 }
                 else{
-                    if(j==3&&i==4){     // check if a process cannot run
+                    if(i == 4){         // check if last process has failed to run
                         printf("The initial state is not a safe state, the processes that cannot run are: ");
                         for(int k = 0; k<5; k++){
                             if(flags[k]==0){
@@ -155,7 +159,7 @@ void safe_sequence()
                             }
                         }
                         printf("\n");
-                        return;
+                        return; 
                     }
                     break; // process cannot run
                 }
@@ -178,12 +182,11 @@ void safe_sequence()
 
 int main ()
 {
-    // Possibly loop through and print each row for matrix
     printf("Claim           Allocation          C - A\n");
     printf("   A B C D         A B C D             A B C D\n");
-    parser();
-    needs_matrix();
-    print_matrixes();
-    safe_sequence();
+    parser();           // parse text files
+    needs_matrix();     // calculate the needs matrix
+    print_matrixes();   // print all the matrixes
+    safe_sequence();    // check if there's a safe sequence
     return 0;
 }
